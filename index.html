@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Year 7 Grammar Quiz</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: linear-gradient(-45deg, #ff9ff3, #feca57, #48dbfb, #1dd1a1);
+    background-size: 400% 400%;
+    animation: gradientBG 10s ease infinite;
+    color: #222;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  h1 {
+    color: #fff;
+    text-shadow: 2px 2px 5px #000;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 600px;
+    margin: 30px auto;
+  }
+  .question-btn {
+    background-color: #fff;
+    border: none;
+    padding: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  .question-btn:hover {
+    background-color: #1dd1a1;
+    color: #fff;
+  }
+  .question-box {
+    display: none;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .answers button {
+    display: block;
+    margin: 10px auto;
+    padding: 12px 15px;
+    width: 90%;
+    border: none;
+    border-radius: 8px;
+    background-color: #48dbfb;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 16px;
+  }
+  .answers button:hover {
+    background-color: #0abde3;
+  }
+  .scoreboard {
+    margin-top: 20px;
+    color: white;
+    font-size: 18px;
+  }
+  .finish-btn {
+    margin-top: 30px;
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: 0.3s;
+  }
+  .finish-btn:hover {
+    background-color: #ee5253;
+  }
+  .next-btn {
+    margin-top: 15px;
+    background-color: #1dd1a1;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    display: none;
+  }
+  .next-btn:hover {
+    background-color: #10ac84;
+  }
+</style>
+</head>
+<body>
+<h1>Year 7 Grammar Quiz</h1>
+<div class="board" id="board"></div>
+
+<div class="question-box" id="questionBox">
+  <h2 id="questionText"></h2>
+  <div class="answers" id="answers"></div>
+  <button class="next-btn" id="nextBtn">Next Question</button>
+</div>
+
+<div class="scoreboard">
+  <p>Group 1 Score: <span id="group1Score">0</span></p>
+  <p>Group 2 Score: <span id="group2Score">0</span></p>
+  <p>Current Turn: <span id="turn">Group 1</span></p>
+</div>
+
+<button class="finish-btn" onclick="finishGame()">Finish & Show Winner</button>
+
+<script>
+const questions = [
+  { q: "Which sentence is a simple sentence?", a: ["I like ice cream.", "I like ice cream, and my friend likes cake.", "Although I like ice cream, I didn't eat any." ,"I went to the park and played games."], correct: 0 },
+  { q: "Which sentence is a compound sentence?", a: ["I went to the store, and I bought milk.", "She sleeps early.", "Although it rained, we played football.", "He runs fast."], correct: 0 },
+  { q: "Which sentence is complex?", a: ["Because it was raining, we stayed inside.", "I like pizza.", "I like pizza and pasta.", "She sings beautifully."], correct: 0 },
+  { q: "Identify the subject: 'The cat chased the mouse.'", a: ["The cat", "chased", "the mouse", "cat chased"], correct: 0 },
+  { q: "Identify the predicate: 'The dog barked loudly.'", a: ["barked loudly", "The dog", "loudly", "dog barked"], correct: 0 },
+  { q: "Choose the correct sentence:", a: ["She doesn't like apples.", "She don't like apples.", "She not likes apples.", "She no like apples."], correct: 0 },
+  { q: "Which is an exclamatory sentence?", a: ["What a beautiful day!", "I like football.", "He went home.", "She reads books."], correct: 0 },
+  { q: "Which sentence uses correct punctuation?", a: ["I bought apples, oranges, and bananas.", "I bought apples oranges and bananas.", "I bought apples; oranges and bananas", "I bought apples oranges, and bananas."], correct: 0 },
+  { q: "Which is a declarative sentence?", a: ["I am going to school.", "Stop talking!", "Do your homework?", "Wow! That's amazing!"], correct: 0 },
+  { q: "Which is an interrogative sentence?", a: ["Where is my book?", "I am reading.", "She plays tennis.", "He runs fast."], correct: 0 },
+  { q: "Which is the compound subject: 'John and Mary went to the park.'", a: ["John and Mary", "John", "Mary", "park"], correct: 0 },
+  { q: "Choose the correct form:", a: ["They were happy.", "They was happy.", "They is happy.", "They be happy."], correct: 0 },
+  { q: "Identify the simple predicate: 'My brother reads every day.'", a: ["reads", "My brother", "every day", "reads every day"], correct: 0 },
+  { q: "Which sentence is in the past tense?", a: ["I played football yesterday.", "I play football.", "I am playing football.", "I will play football."], correct: 0 },
+  { q: "Which sentence is in the future tense?", a: ["I will travel to London.", "I traveled to London.", "I travel to London.", "I am traveling to London."], correct: 0 }
+];
+
+let group1Score = 0;
+let group2Score = 0;
+let currentTurn = 1;
+
+const board = document.getElementById('board');
+const questionBox = document.getElementById('questionBox');
+const questionText = document.getElementById('questionText');
+const answersDiv = document.getElementById('answers');
+const nextBtn = document.getElementById('nextBtn');
+
+questions.forEach((q, i) => {
+  const btn = document.createElement('button');
+  btn.textContent = i + 1;
+  btn.className = 'question-btn';
+  btn.onclick = () => showQuestion(i, btn);
+  board.appendChild(btn);
+});
+
+let currentQuestionBtn = null;
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function showQuestion(index, btn) {
+  currentQuestionBtn = btn;
+  const q = questions[index];
+  questionText.textContent = q.q;
+  answersDiv.innerHTML = '';
+  
+  const answerIndexes = [0,1,2,3];
+  shuffle(answerIndexes).forEach(i => {
+    const answerBtn = document.createElement('button');
+    answerBtn.textContent = q.a[i];
+    answerBtn.onclick = () => checkAnswer(i === q.correct);
+    answersDiv.appendChild(answerBtn);
+  });
+
+  questionBox.style.display = 'block';
+  nextBtn.style.display = 'none';
+}
+
+function checkAnswer(isCorrect) {
+  Array.from(answersDiv.children).forEach(b => b.disabled = true);
+  
+  if (isCorrect) {
+    if (currentTurn === 1) group1Score += 10;
+    else group2Score += 10;
+  }
+
+  document.getElementById('group1Score').textContent = group1Score;
+  document.getElementById('group2Score').textContent = group2Score;
+
+  nextBtn.style.display = 'block';
+  currentTurn = currentTurn === 1 ? 2 : 1;
+  document.getElementById('turn').textContent = `Group ${currentTurn}`;
+}
+
+nextBtn.onclick = () => {
+  questionBox.style.display = 'none';
+  currentQuestionBtn.disabled = true;
+}
+
+function finishGame() {
+  let winner = '';
+  if (group1Score > group2Score) winner = 'Group 1 Wins! 🏆';
+  else if (group2Score > group1Score) winner = 'Group 2 Wins! 🏆';
+  else winner = 'It’s a tie! Great teamwork!';
+  alert(`Game Over!\n${winner}`);
+}
+</script>
+</body>
+</html>
